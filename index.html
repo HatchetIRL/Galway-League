@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galway Spring League 2026</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            line-height: 1.5;
+        }
+        
+        /* New Logo Styles */
+        .logo-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* Allows them to wrap neatly on tiny phone screens */
+        }
+        .club-logo {
+            height: 60px; /* Forces all logos to be the exact same height */
+            width: auto; /* Lets the width adjust naturally */
+            max-width: 80px; 
+            object-fit: contain; /* Prevents the images from stretching or squishing */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 { margin-bottom: 5px; font-size: 1.8rem; }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        @media (min-width: 600px) {
+            .grid { grid-template-columns: 1fr 1fr; }
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .rider {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .rider:last-child { border-bottom: none; }
+        .rider-info { display: flex; align-items: center; gap: 10px; }
+        .rank { font-weight: bold; color: var(--text-muted); width: 20px; }
+        .name { font-weight: 600; }
+        .club { font-size: 0.8rem; color: var(--text-muted); display: block; }
+        .points { font-weight: bold; background: var(--bg-color); padding: 4px 8px; border-radius: 6px; }
+        
+        .embed-section {
+            max-width: 800px;
+            margin: 40px auto;
+            text-align: center;
+        }
+        .embed-container {
+            position: relative;
+            padding-bottom: 75%; /* Aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        .embed-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-bar">
+            <img src="GBCC.png" alt="Galway Bay CC" class="club-logo">
+            <img src="Tuam CC.jpg" alt="Tuam CC" class="club-logo">
+            <img src="7SPrings.jpg" alt="Seven Springs CC" class="club-logo">
+            <img src="Ballinasloe.png" alt="Ballinasloe CC" class="club-logo">
+        </div>
+
+        <h1>Galway Spring League</h1>
+        <p>Live Leaderboards</p>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <h2>🏆 Main League (Top 10)</h2>
+            <div id="main-league">Loading...</div>
+        </div>
+        <div class="card">
+            <h2>🏆 Dev League (Top 10)</h2>
+            <div id="dev-league">Loading...</div>
+        </div>
+        <div class="card">
+            <h2>⚡ ML Primes (Top 3)</h2>
+            <div id="ml-primes">Loading...</div>
+        </div>
+        <div class="card">
+            <h2>⚡ DL Primes (Top 3)</h2>
+            <div id="dl-primes">Loading...</div>
+        </div>
+    </div>
+
+    <div class="embed-section">
+        <h2>Full Standings</h2>
+        <p>Check the tabs at the bottom to switch leagues.</p>
+        <div class="embed-container">
+            <iframe src="YOUR_GOOGLE_SHEET_EMBED_LINK_HERE"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🛠️ CONFIGURATION BLOCK (UPDATE THESE LINKS)
+        // ==========================================
+        const CONFIG = {
+            mainLeagueCSV: "YOUR_MAIN_LEAGUE_CSV_LINK",
+            devLeagueCSV: "YOUR_DEV_LEAGUE_CSV_LINK",
+            mlPrimesCSV: "YOUR_ML_PRIMES_CSV_LINK",
+            dlPrimesCSV: "YOUR_DL_PRIMES_CSV_LINK"
+        };
+        // ==========================================
+
+        function renderLeaderboard(data, elementId, limit, leaderEmoji) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = ''; // Clear loading text
+
+            // Filter out empty rows and sort by Total points (highest to lowest)
+            let validRiders = data.filter(row => row['First Name'] && row['Total']);
+            validRiders.sort((a, b) => parseFloat(b['Total']) - parseFloat(a['Total']));
+
+            // Get top N riders
+            const topRiders = validRiders.slice(0, limit);
+
+            topRiders.forEach((rider, index) => {
+                const isLeader = index === 0;
+                const emoji = isLeader ? ` ${leaderEmoji}` : '';
+                
+                const riderHtml = `
+                    <div class="rider">
+                        <div class="rider-info">
+                            <span class="rank">${index + 1}</span>
+                            <div>
+                                <span class="name">${rider['First Name']} ${rider['Last Name']}${emoji}</span>
+                                <span class="club">${rider['CI Club'] || ''}</span>
+                            </div>
+                        </div>
+                        <span class="points">${rider['Total']} pts</span>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', riderHtml);
+            });
+        }
+
+        function loadCSV(url, elementId, limit, leaderEmoji) {
+            // If placeholder hasn't been replaced yet, show a helpful message
+            if (url.includes("YOUR_")) {
+                document.getElementById(elementId).innerHTML = "<small style='color:gray'>Waiting for Google Sheet Link...</small>";
+                return;
+            }
+
+            Papa.parse(url, {
+                download: true,
+                header: true,
+                complete: function(results) {
+                    renderLeaderboard(results.data, elementId, limit, leaderEmoji);
+                },
+                error: function() {
+                    document.getElementById(elementId).innerHTML = "Error loading data.";
+                }
+            });
+        }
+
+        // Initialize the leaderboards
+        // 🟡 Yellow for General Classification, 🟢 Green for Sprints
+        loadCSV(CONFIG.mainLeagueCSV, 'main-league', 10, '🟡');
+        loadCSV(CONFIG.devLeagueCSV, 'dev-league', 10, '🟡');
+        loadCSV(CONFIG.mlPrimesCSV, 'ml-primes', 3, '🟢');
+        loadCSV(CONFIG.dlPrimesCSV, 'dl-primes', 3, '🟢');
+    </script>
+</body>
+</html>
