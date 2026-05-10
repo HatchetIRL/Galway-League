@@ -133,6 +133,34 @@
         border-radius: 8px; 
     }
 
+    .download-container {
+    margin: 20px auto;
+    text-align: center;
+    }
+
+    .download-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background-color: #27ae60; /* A "Go" Green color */
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1rem;
+        transition: background 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    }
+    
+    .download-btn:hover {
+        background-color: #2ecc71;
+        transform: translateY(-2px);
+    }
+    
+    .download-btn:active {
+        transform: translateY(0);
+    }
 </style>
 </head>
 <body>
@@ -174,6 +202,15 @@
         <div class="embed-container">
             <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRBdMMbAhZPaxInQ4JGAKNAmUOeaCdvrppsp37u3etoPnryaaqNW9OV7zL--aN2BnzpXv85Egg9MMUz/pubhtml"></iframe>
         </div>
+    </div>
+
+    <div class="download-container">
+        <a href="https://docs.google.com/spreadsheets/d/1PhkY6_IqRzGOtsh6UPzbtZpJenow05TnxTJlUW6IAUo/export?format=xlsx" class="download-btn">
+            📊 Download Full League Table (.xlsx)
+        </a>
+        <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 10px;">
+            Click to download the latest standings as an Excel file.
+        </p>
     </div>
 
     <script>
