@@ -188,37 +188,56 @@
         };
         // ==========================================
 
-        function renderLeaderboard(data, elementId, limit, leaderEmoji) {
-            const container = document.getElementById(elementId);
-            container.innerHTML = ''; // Clear loading text
+       function renderLeaderboard(data, elementId, limit, leaderEmoji) {
+        const container = document.getElementById(elementId);
+        container.innerHTML = '';
 
-            // Filter out empty rows and sort by Total points (highest to lowest)
-            let validRiders = data.filter(row => row['First Name'] && row['Total']);
-            validRiders.sort((a, b) => parseFloat(b['Total']) - parseFloat(a['Total']));
+        let validRiders = data.filter(row => row['First Name'] && row['Total']);
+        validRiders.sort((a, b) => parseFloat(b['Total']) - parseFloat(a['Total']));
 
-            // Get top N riders
-            const topRiders = validRiders.slice(0, limit);
+        const topRiders = validRiders.slice(0, limit);
 
-            topRiders.forEach((rider, index) => {
-                const isLeader = index === 0;
-                const emoji = isLeader ? ` ${leaderEmoji}` : '';
-                
-                const riderHtml = `
+        topRiders.forEach((rider, index) => {
+            const isFirst = index === 0;
+            const firstName = rider['First Name'] || '';
+            const lastName = rider['Last Name'] || '';
+            const club = rider['CI Club'] || '';
+            const points = rider['Total'] || '0';
+
+            let riderHtml = '';
+
+            if (isFirst) {
+                // SPECIAL FORMATTING FOR LEADER
+                riderHtml = `
+                    <div class="rider" style="align-items: flex-start; padding-bottom: 12px;">
+                        <div class="rider-info">
+                            <span class="rank" style="margin-top: 5px;">1</span>
+                            <div>
+                                <div class="name" style="font-size: 1.2rem;">${firstName} ${lastName} ${leaderEmoji}</div>
+                                <div class="club" style="margin-top: 2px;">${club}</div>
+                            </div>
+                        </div>
+                        <span class="points" style="margin-top: 5px;">${points} pts</span>
+                    </div>
+                `;
+            } else {
+                // STANDARD FORMATTING FOR OTHERS
+                riderHtml = `
                     <div class="rider">
                         <div class="rider-info">
                             <span class="rank">${index + 1}</span>
                             <div>
-                                <span class="name">${rider['First Name']} ${rider['Last Name']}${emoji}</span>
-                                <span class="club">${rider['CI Club'] || ''}</span>
+                                <span class="name">${firstName} ${lastName}</span>
+                                <span class="club"> - ${club}</span>
                             </div>
                         </div>
-                        <span class="points">${rider['Total']} pts</span>
+                        <span class="points">${points} pts</span>
                     </div>
                 `;
-                container.insertAdjacentHTML('beforeend', riderHtml);
-            });
-        }
-
+            }
+            container.insertAdjacentHTML('beforeend', riderHtml);
+        });
+    }
         function loadCSV(url, elementId, limit, leaderEmoji) {
             // If placeholder hasn't been replaced yet, show a helpful message
             if (url.includes("YOUR_")) {
